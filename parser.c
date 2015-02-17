@@ -89,7 +89,7 @@ node_t * rel()
     case TLPAREN:
         free(node);
         node = cond();
-        if (yylex() != TLPAREN) {
+        if (yylex() != TRPAREN) {
             fprintf(stderr, "Expected closing ')'\n");
             error();
         }
