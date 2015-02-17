@@ -141,7 +141,7 @@ uint32_t filter(node_t *ast, uint8_t *packet, uint8_t *res) {
     case TCONSTHEX:
         return strtol(ast->attr, NULL, 0);
     case TETH:
-        return 0;
+        return 1;
     case TIP:
         return ((ethhdr *)packet)->h_proto == htons(ETH_P_IP);
     case TIP6:
