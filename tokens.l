@@ -122,6 +122,6 @@ hex     [0x[a-fA-F0-9]+
 "("             {return TLPAREN;}
 ")"             {return TRPAREN;}
 
-[^ ]+           fprintf(stderr, "Unrecognized token in filter expression: \"%s\"\n", yytext); exit(1);
+.           fprintf(stderr, "Unrecognized token in filter expression: \"%s\"\n", yytext); exit(1);
 
 %%

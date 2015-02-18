@@ -140,7 +140,8 @@ int tcp(uint8_t *packet, char **output)
         asprintf(output + 1, "HTTP");
         break;
     case 443:
-        asprintf(output + 1, "HTTPS");
+        //asprintf(output + 1, "HTTPS");
+        return -1; // Don't show vps traffic
         break;
     case 993:
         asprintf(output + 1, "IMAPS");
@@ -399,7 +400,6 @@ int dump(int sockfd, int mtu, node_t *filterExpr)
 
     while (1) {
         fflush(stdout);
-        fflush(stderr);
 
         numBytes = recv(sockfd, packet, sizeof(packet), 0);
         getRecvTime(sockfd, &recvTime);

@@ -12,17 +12,6 @@ node_t * cond();
 node_t * rel();
 node_t * term(int type);
 
-void error()
-{
-    if (yyleng == 1) {
-        fprintf(stderr, "Invalid filter expression. Expected more input.\n");
-    }
-    else {
-        fprintf(stderr, "Unexpected token \"%s\"\n", yytext);
-    }
-    exit(1);
-}
-
 
 node_t * parse()
 {
@@ -53,7 +42,8 @@ node_t * cond_rest(node_t *lhs)    // Eliminate left recursion
         return lhs;
     }
     else {
-        error();
+        yyless(0);  // Push the unknown lexeme back to the input
+        return lhs;
     }
 }
    
@@ -74,8 +64,9 @@ node_t * rel()
     case TOK_CONST:
     case TOK_BINARY_ID:
         node->lhs = term(tok);
-        if ((tok = yylex()) != TOK_REL) {
-            error();
+        if (yylex() != TOK_REL) {
+            fprintf(stderr, "Error: Expected relational operator\n");
+            exit(1);
         }
         node->type = yylval;
         node->rhs = term(yylex());
@@ -90,12 +81,13 @@ node_t * rel()
         free(node);
         node = cond();
         if (yylex() != TRPAREN) {
-            fprintf(stderr, "Expected closing ')'\n");
-            error();
+            fprintf(stderr, "Error: Expected closing ')'\n");
+            exit(1);
         }
         return node;
     default:
-        error();
+        fprintf(stderr, "Error: Unexpected token\n");
+        exit(1);
     }
 }
 
@@ -117,7 +109,8 @@ node_t * term(int type)
         node->attr = NULL;
     }
     else {
-        error();
+        fprintf(stderr, "Error: Expected binary identifier or constant\n");
+        exit(1);
     }
 
     return node;
