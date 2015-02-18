@@ -1,0 +1,67 @@
+==========
+=  DUMP  =
+==========
+
+An experiment with raw sockets and expression parsing. Similar to tcpdump, this
+project receives and interprets packets on a specified interface. The code to
+generate the filter is similar to a compiler front-end, composed of a lexer,
+parser, and type-checker.
+
+Filter Design
+=============
+The tool flex was used to generate lexer code. Tokens are defined in tokens.l
+and the generated lexer code is in lex.yy.c. I implemented a top-down recursive
+descent parser as an exercise in parser design and implementation. The grammar
+for the parser is shown below. Non-terminals are shown on the left, and their
+productions on the right. The parser builds an abstract syntax tree which is
+then passed to the typechecker and filter.
+
+The typechecker traverses the ast until it finds a node representing a
+relational operator. It then ensures that the binary identifier and the
+associated constant are the same type.
+
+expr        cond
+
+cond        rel cond_rest
+
+cond_rest   && rel cond_rest
+            || rel cond_rest
+
+rel         term == term
+            term != term
+            term <  term
+            term >  term
+            term >= term
+            term <= term
+            unary_id
+            ( cond )
+
+term        binary_id
+            const
+
+binary_id   eth.src
+            eth.dst
+            eth.sha
+            eth.tha
+            ...
+            ...
+
+unary_id    ip
+            eth
+            tcp
+            udp
+            ...
+            ...
+
+const       ip
+            mac
+            dec
+            hex
+
+Capture Design
+==============
+Once a packet is received, dump first recursively traverses the filter ast in 
+order to evaluate whether the packet matches the provided filter expression.
+The filter function returns a boolean value of whether or not to keep the
+packet. If the packet is not filtered, each layer is successively interpreted
+and the output is built.
